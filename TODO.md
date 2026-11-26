@@ -59,8 +59,8 @@ Status per 26 November 2026.
 - [x] Speedometer skala 320 km/h, gear sampai 8, meter NOS, hasil NOS used.
 - [x] README interaktif dengan animasi CSS, panel `<details>`, marquee, timeline, dan badge.
 - [x] Guard regresi NOS + POV di `tests/steer.test.js`.
-- [ ] Push ke GitHub repo `Ikyletwar/apex-circuit-01`.
-- [ ] Aktifkan GitHub Pages di branch `main` path `/`.
+- [x] Push ke GitHub repo `Ikyletwar/apex-circuit-01` (commit `7f7b05e`, branch `main`).
+- [x] Aktifkan GitHub Pages di branch `main` path `/` — status `built`, <https://ikyletwar.github.io/apex-circuit-01/>.
 
 ## Tidak direncanakan
 

@@ -58,7 +58,7 @@ animate():
 - NOS: tahan Shift/F/touch, meter 100, drain 32/dtk, recharge 8,5/dtk, +26 m/s top speed, power ×2,15, FOV kick, flame biru, audio boost.
 - Countdown 3-2-1-GO, pause/resume, restart, kembali ke menu.
 - Minimap dengan posisi semua mobil.
-- Kontrol sentuh untuk perangkat coarse pointer / layar kecil.
+- Kontrol sentuh auto-detect: hanya perangkat dengan `pointer: coarse`, `maxTouchPoints > 0`, atau `ontouchstart`. PC tidak menampilkan HUD tombol mobile; HP/tablet menampilkan tombol saat countdown/racing, dengan toggle `MOBILE` + shortcut `T` dan haptic `navigator.vibrate()`.
 - Reduced-motion: matikan speed lines, shake, dan transisi.
 
 ## Verifikasi yang direncanakan

@@ -59,7 +59,11 @@ Status per 26 November 2026.
 - [x] Speedometer skala 320 km/h, gear sampai 8, meter NOS, hasil NOS used.
 - [x] README interaktif dengan animasi CSS, panel `<details>`, marquee, timeline, dan badge.
 - [x] Guard regresi NOS + POV di `tests/steer.test.js`.
-- [x] Push ke GitHub repo `Ikyletwar/apex-circuit-01` (commit `7f7b05e`, branch `main`).
+- [x] Mobile auto-detect berbasis `pointer: coarse` + `maxTouchPoints` + `ontouchstart`; PC tidak menampilkan HUD tombol mobile.
+- [x] Tombol toggle `MOBILE / ON-OFF` + shortcut `T` hanya pada perangkat touch.
+- [x] Haptic `navigator.vibrate()` pada tombol sentuh, awal NOS, dan tabrakan.
+- [x] Layout landscape ≤480 px untuk kontrol sentuh.
+- [x] Push ke GitHub repo `Ikyletwar/apex-circuit-01` (branch `main`, histori commit terbaru di GitHub).
 - [x] Aktifkan GitHub Pages di branch `main` path `/` — status `built`, <https://ikyletwar.github.io/apex-circuit-01/>.
 
 ## Tidak direncanakan

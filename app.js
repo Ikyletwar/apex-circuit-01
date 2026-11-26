@@ -27,7 +27,10 @@ const COLORS = {
 };
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+const coarseQuery = window.matchMedia('(pointer: coarse)');
+const detectTouchCapable = () => coarseQuery.matches
+  || (navigator.maxTouchPoints || 0) > 0
+  || 'ontouchstart' in window;
 
 const dom = {
   canvas: document.getElementById('scene'),
@@ -42,6 +45,8 @@ const dom = {
   restartResult: document.getElementById('btn-restart-result'),
   menu: document.getElementById('btn-menu'),
   btnCamera: document.getElementById('btn-camera'),
+  btnTouch: document.getElementById('btn-touch'),
+  touchLabel: document.getElementById('touch-label'),
   btnMute: document.getElementById('btn-mute'),
   muteLabel: document.getElementById('mute-label'),
   btnPause: document.getElementById('btn-pause'),
@@ -91,7 +96,9 @@ const state = {
   nosWasActive: false,
   toastTimer: 0,
   collisionCooldown: 0,
-  touchEnabled: coarsePointer || window.innerWidth < 820,
+  touchCapable: detectTouchCapable(),
+  touchEnabled: detectTouchCapable(),
+  touchUserHidden: false,
   lastFrame: performance.now(),
   menuAngle: 0,
 };
@@ -172,11 +179,48 @@ function hideAllOverlays() {
   dom.resultOverlay.hidden = true;
 }
 
+function haptic(pattern = 8) {
+  try {
+    if (navigator.vibrate) navigator.vibrate(pattern);
+  } catch (_) {
+    /* Getar tidak tersedia di platform ini. */
+  }
+}
+
+function syncTouchVisibility(forceActive) {
+  const active = forceActive === undefined
+    ? (state.phase === 'racing' || state.phase === 'countdown')
+    : forceActive;
+  dom.touch.hidden = !(active && state.touchEnabled && !state.touchUserHidden);
+}
+
+function updateTouchCapability() {
+  state.touchCapable = detectTouchCapable();
+  state.touchEnabled = state.touchCapable;
+  if (!state.touchCapable) state.touchUserHidden = false;
+  dom.btnTouch.hidden = !state.touchCapable;
+  dom.touchLabel.textContent = state.touchUserHidden ? 'OFF' : 'ON';
+  dom.btnTouch.setAttribute('aria-pressed', String(!state.touchUserHidden));
+  dom.btnTouch.classList.toggle('is-active', !state.touchUserHidden);
+  syncTouchVisibility();
+}
+
+function toggleTouchMode() {
+  if (!state.touchCapable) return;
+  state.touchUserHidden = !state.touchUserHidden;
+  dom.touchLabel.textContent = state.touchUserHidden ? 'OFF' : 'ON';
+  dom.btnTouch.setAttribute('aria-pressed', String(!state.touchUserHidden));
+  dom.btnTouch.classList.toggle('is-active', !state.touchUserHidden);
+  syncTouchVisibility();
+  showToast(state.touchUserHidden ? 'KONTROL MOBILE / OFF' : 'KONTROL MOBILE / ON', 850);
+  haptic(10);
+}
+
 function setHudVisible(visible) {
   dom.hud.hidden = !visible;
   dom.speedometer.hidden = !visible;
   dom.minimapWrap.hidden = !visible;
-  dom.touch.hidden = !(visible && state.touchEnabled);
+  syncTouchVisibility(visible);
 }
 
 /* ============================================================
@@ -1189,6 +1233,7 @@ function constrainToTrack(car, frame, dt) {
   if (car.isPlayer && state.collisionCooldown <= 0) {
     state.collisionCooldown = 0.5;
     state.shake = Math.max(state.shake, 0.34);
+    haptic([14, 28, 14]);
     audio.impact(clamp(outward / 12, 0.35, 1.2));
     showToast('BENTURAN / KECEPATAN TURUN', 950);
     for (let i = 0; i < 9; i++) {
@@ -1227,6 +1272,7 @@ function resolveCarCollisions() {
         if ((a.isPlayer || b.isPlayer) && relative > 7 && state.collisionCooldown <= 0) {
           state.collisionCooldown = 0.45;
           state.shake = Math.max(state.shake, 0.22);
+          haptic(12);
           audio.impact(0.5);
           showToast('KONTAK / JAGA JARAK', 900);
         }
@@ -1354,6 +1400,7 @@ function resumeGame() {
   if (state.phase !== 'paused') return;
   hideAllOverlays();
   state.phase = state.phaseBeforePause;
+  syncTouchVisibility();
   dom.resume.blur();
 }
 
@@ -1370,6 +1417,7 @@ function backToMenu() {
 function finishRace() {
   if (state.phase === 'finished') return;
   state.phase = 'finished';
+  syncTouchVisibility();
   dom.countdown.hidden = true;
   updateRankings();
   dom.resultTitle.textContent = `Finis ke-${player.rank}.`;
@@ -1629,9 +1677,10 @@ function animate(now) {
   drawMinimap();
 
   const speed = player.vel.length();
-  if (player.nosActive && !state.nosWasActive && !reducedMotion) {
+  if (player.nosActive && !state.nosWasActive) {
     audio.boostCue();
-    state.shake = Math.max(state.shake, 0.16);
+    haptic(8);
+    if (!reducedMotion) state.shake = Math.max(state.shake, 0.16);
   }
   state.nosWasActive = player.nosActive;
   audio.update(speed, player.input.throttle, Math.abs(player.lateral) > 5.5, player.nosActive);
@@ -1689,8 +1738,7 @@ function onResize() {
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  state.touchEnabled = (window.matchMedia('(pointer: coarse)').matches || isSmall);
-  dom.touch.hidden = !((state.phase === 'racing' || state.phase === 'countdown') && state.touchEnabled);
+  updateTouchCapability();
 }
 
 function bindEvents() {
@@ -1730,6 +1778,7 @@ function bindEvents() {
       else pauseGame();
     }
     if (e.code === 'KeyC') cycleCamera();
+    if (e.code === 'KeyT' && state.touchCapable) toggleTouchMode();
     if (e.code === 'KeyM') dom.btnMute.click();
     if (e.code === 'KeyR' && state.phase !== 'menu') startRace();
     if (e.code === 'Enter' && state.phase === 'menu' && e.target.tagName !== 'BUTTON') startRace();
@@ -1747,6 +1796,7 @@ function bindEvents() {
       e.preventDefault();
       button.setPointerCapture?.(e.pointerId);
       set(true);
+      haptic(8);
     });
     button.addEventListener('pointerup', () => set(false));
     button.addEventListener('pointercancel', () => set(false));
@@ -1773,6 +1823,7 @@ function init() {
   audio = new GameAudio();
   setupMinimap();
   bindEvents();
+  updateTouchCapability();
   resetRace();
   setHudVisible(false);
   dom.countdown.hidden = true;
@@ -1781,6 +1832,7 @@ function init() {
   window.__APEX_DEBUG = {
     state, keys, touchInput, cars, track, CONFIG,
     readPlayerInput, updateCarPhysics, updateCamera, cycleCamera,
+    detectTouchCapable, updateTouchCapability, syncTouchVisibility, toggleTouchMode,
   };
   dom.start.focus({ preventScroll: true });
   requestAnimationFrame(animate);

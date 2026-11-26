@@ -18,6 +18,10 @@ function sourceHas(pattern, message) {
   assert(pattern.test(source), message);
 }
 
+function sourceLacks(pattern, message) {
+  assert(!pattern.test(source), message);
+}
+
 console.log('APEX Circuit — regresi arah belok');
 console.log('');
 
@@ -76,6 +80,35 @@ sourceHas(
 sourceHas(
   /dom\.steeringWheel\.style\.setProperty\('--wheel-angle'/,
   'setir POV mengikuti steer'
+);
+
+console.log('');
+console.log('Regresi kontrol mobile auto-detect');
+console.log('');
+
+sourceHas(
+  /coarseQuery\.matches\s*\|\|[\s\S]{0,120}navigator\.maxTouchPoints[\s\S]{0,120}'ontouchstart' in window/,
+  'deteksi mobile memakai pointer coarse, maxTouchPoints, dan ontouchstart'
+);
+sourceLacks(
+  /touchEnabled\s*=\s*\(?window\.matchMedia\('\(pointer: coarse\)'\)\.matches\s*\|\|\s*isSmall/,
+  'tidak ada deteksi mobile berbasis lebar viewport PC'
+);
+sourceHas(
+  /dom\.btnTouch\.hidden = !state\.touchCapable/,
+  'tombol toggle mobile hanya tampil pada perangkat touch'
+);
+sourceHas(
+  /dom\.touch\.hidden = !\(active && state\.touchEnabled && !state\.touchUserHidden\)/,
+  'HUD tombol mobile tampil saat racing/countdown dan tidak disembunyikan user'
+);
+sourceHas(
+  /haptic\(\[14, 28, 14\]\)/,
+  'feedback getar pada tabrakan pembatas'
+);
+sourceHas(
+  /haptic\(8\);[\s\S]{0,120}state\.shake/,
+  'feedback getar pada awal NOS'
 );
 
 console.log('');

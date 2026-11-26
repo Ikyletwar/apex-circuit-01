@@ -206,8 +206,24 @@
       <tr><td><span class="apex-kbd">ESC</span> <span class="apex-kbd">P</span></td><td>Jeda / lanjut</td></tr>
       <tr><td><span class="apex-kbd">M</span></td><td>Bisukan suara</td></tr>
       <tr><td><span class="apex-kbd">R</span></td><td>Ulang balapan</td></tr>
-      <tr><td>Tombol sentuh</td><td>‹ › · DRIFT · NOS · BRK · GAS muncul otomatis di layar kecil</td></tr>
+      <tr><td><span class="apex-kbd">T</span></td><td>Tampil/sembunyikan kontrol mobile — hanya tersedia di perangkat touch</td></tr>
+      <tr><td>Tombol sentuh</td><td>‹ › · DRIFT · NOS · BRK · GAS muncul otomatis di perangkat touch saat balapan</td></tr>
     </table>
+  </div>
+</div>
+
+<div class="apex-panel" open>
+  <summary>BUKA PANEL / MOBILE AUTO-DETECT</summary>
+  <div class="apex-panel-body">
+    <p>Kontrol sentuh tidak lagi bergantung pada lebar viewport. Deteksi memakai <code>(pointer: coarse)</code>, <code>navigator.maxTouchPoints &gt; 0</code>, atau <code>'ontouchstart' in window</code>.</p>
+    <ul>
+      <li><strong>PC / mouse:</strong> HUD tombol mobile dan tombol toggle <code>MOBILE</code> tidak dirender sama sekali, walaupun jendela diperkecil.</li>
+      <li><strong>HP / tablet:</strong> HUD tombol muncul otomatis saat countdown dan racing, hilang saat menu, pause, dan finish.</li>
+      <li><strong>Hybrid touch laptop:</strong> dianggap touch-capable karena ada <code>maxTouchPoints</code>.</li>
+      <li>Tombol <code>MOBILE / ON-OFF</code> hanya tampil di perangkat touch. Shortcut <span class="apex-kbd">T</span> juga hanya aktif di perangkat touch.</li>
+      <li>Setiap penekanan tombol, awal NOS, dan tabrakan memberi feedback <code>navigator.vibrate()</code> bila didukung.</li>
+      <li>Layout landscape pendek (tinggi ≤ 480 px) memakai tombol lebih kompak dan memindahkan speedometer/minimap di atas area jari.</li>
+    </ul>
   </div>
 </div>
 

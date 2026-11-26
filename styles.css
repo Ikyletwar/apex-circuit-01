@@ -785,6 +785,20 @@ kbd {
   .minimap-wrap { width: 112px; }
 }
 
+@media (max-height: 480px) and (orientation: landscape) {
+  .touch-controls { bottom: calc(10px + var(--safe-bottom)); }
+  .touch-button { width: 50px; height: 50px; }
+  .touch-button.small { width: 42px; height: 42px; font-size: 9px; }
+  .touch-button.primary { width: 60px; height: 60px; }
+  .touch-steer, .touch-drive { gap: 6px; }
+  .speedometer, .minimap-wrap { bottom: calc(84px + var(--safe-bottom)); }
+  .speedometer { width: 150px; }
+  .speed-number { font-size: 40px; }
+  .minimap-wrap { width: 104px; }
+  .cockpit-dash { height: 82px; }
+  .steering-wheel { width: 66px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
